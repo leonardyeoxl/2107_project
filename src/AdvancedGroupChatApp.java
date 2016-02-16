@@ -12,7 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JTextField;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 
@@ -28,7 +30,9 @@ public class AdvancedGroupChatApp extends JFrame {
 	JButton sendMessageButton, leaveCurrentGroupButton, joinCurrentGroupButton, addFriendButton;
 	JButton addGroupButton, registerFriendButton, deleteFriendButton, editGroupButton;
 	
-	JTextArea messageListtextArea, friendListTextArea, groupListTextArea;
+	JTextArea messageListtextArea;
+	
+	JList<String> friendList, groupList;
 	
 	MulticastSocket multicastSocket_Common = null;
 	InetAddress multicastGroup_Common = null;
@@ -36,6 +40,8 @@ public class AdvancedGroupChatApp extends JFrame {
 	InetAddress multicastGroup_Group = null;
 	
 	ArrayList<String> groupArray = new ArrayList<String>();
+	
+	DefaultListModel<String> model;
 
 	/**
 	 * Launch the application.
@@ -57,6 +63,9 @@ public class AdvancedGroupChatApp extends JFrame {
 	 * Create the frame.
 	 */
 	public AdvancedGroupChatApp() {
+		
+		model = new DefaultListModel<>();
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 521, 362);
 		contentPane = new JPanel();
@@ -115,17 +124,17 @@ public class AdvancedGroupChatApp extends JFrame {
 		lblFriendList.setBounds(10, 110, 78, 14);
 		contentPane.add(lblFriendList);
 		
-		friendListTextArea = new JTextArea();
-		friendListTextArea.setBounds(10, 130, 65, 151);
-		contentPane.add(friendListTextArea);
+		friendList = new JList();
+		friendList.setBounds(10, 130, 65, 151);
+		contentPane.add(friendList);
 		
 		JLabel lblGroupList = new JLabel("Group List");
 		lblGroupList.setBounds(102, 110, 70, 14);
 		contentPane.add(lblGroupList);
 		
-		groupListTextArea = new JTextArea();
-		groupListTextArea.setBounds(97, 130, 65, 151);
-		contentPane.add(groupListTextArea);
+		groupList = new JList<String>(model);
+		groupList.setBounds(97, 130, 65, 151);
+		contentPane.add(groupList);
 		
 		displayCurrentGrouptextField = new JTextField();
 		displayCurrentGrouptextField.setBounds(189, 107, 86, 20);
@@ -157,8 +166,14 @@ public class AdvancedGroupChatApp extends JFrame {
 		sendMessageButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					
-				}catch(Exception ex){
+					/*String msg = textField.getText();
+					msg = userName + ": " + msg;
+					byte[] buf = msg.getBytes();
+					DatagramPacket dgpSend = new DatagramPacket(buf, buf.length, multicastGroupGroup, 6789);
+					multicastSocketGroup.send(dgpSend);
+					Thread.sleep(100);
+					textField.setText("");*/
+				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
 			}
@@ -166,8 +181,40 @@ public class AdvancedGroupChatApp extends JFrame {
 		sendMessageButton.setBounds(362, 288, 89, 23);
 		contentPane.add(sendMessageButton);
 		
+		try{
+			
+			multicastGroup_Common = InetAddress.getByName("235.1.1.1");
+			multicastSocket_Common = new MulticastSocket(6789);
+			// join
+			multicastSocket_Common.joinGroup(multicastGroup_Common);
+			
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		
+		Testing_addGroup();
 		
 		
+	}
+	
+	public void Testing_addGroup(){
+		String group1 = "GROUP-"+"2107-"+"228.1.2.3";
+		String group2 = "GROUP-"+"2108-"+"228.1.2.4";
+		String group3 = "GROUP-"+"2109-"+"228.1.2.5";
+		String group4 = "GROUP-"+"2110-"+"228.1.2.6";
 		
+		groupArray.add(group1);
+		groupArray.add(group2);
+		groupArray.add(group3);
+		groupArray.add(group4);
+		
+		for(int i=0; i<groupArray.size(); i++){
+			
+			String someString  = groupArray.get(i);
+			String[] splittedArray = someString.split("-");
+			
+			model.addElement(splittedArray[1]);
+			
+		}
 	}
 }
