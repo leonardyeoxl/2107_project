@@ -1,5 +1,12 @@
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.TextArea;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -18,9 +25,17 @@ public class AdvancedGroupChatApp extends JFrame {
 	private JTextField displayCurrentGrouptextField;
 	private JTextField postMessagetextField;
 	
-	JButton sendMessageButton, leaveCurrentGroupButton;
+	JButton sendMessageButton, leaveCurrentGroupButton, joinCurrentGroupButton, addFriendButton;
+	JButton addGroupButton, registerFriendButton, deleteFriendButton, editGroupButton;
 	
-	JTextArea messageListtextArea;
+	JTextArea messageListtextArea, friendListTextArea, groupListTextArea;
+	
+	MulticastSocket multicastSocket_Common = null;
+	InetAddress multicastGroup_Common = null;
+	MulticastSocket multicastSocket_Group = null;
+	InetAddress multicastGroup_Group = null;
+	
+	ArrayList<String> groupArray = new ArrayList<String>();
 
 	/**
 	 * Launch the application.
@@ -76,23 +91,23 @@ public class AdvancedGroupChatApp extends JFrame {
 		contentPane.add(grouptextField);
 		grouptextField.setColumns(10);
 		
-		JButton registerFriendButton = new JButton("Register");
+		registerFriendButton = new JButton("Register");
 		registerFriendButton.setBounds(189, 7, 89, 23);
 		contentPane.add(registerFriendButton);
 		
-		JButton addFriendButton = new JButton("Add");
+		addFriendButton = new JButton("Add");
 		addFriendButton.setBounds(189, 32, 89, 23);
 		contentPane.add(addFriendButton);
 		
-		JButton addGroupButton = new JButton("Add");
+		addGroupButton = new JButton("Add");
 		addGroupButton.setBounds(189, 57, 89, 23);
 		contentPane.add(addGroupButton);
 		
-		JButton deleteFriendButton = new JButton("Delete");
+		deleteFriendButton = new JButton("Delete");
 		deleteFriendButton.setBounds(291, 32, 89, 23);
 		contentPane.add(deleteFriendButton);
 		
-		JButton editGroupButton = new JButton("Edit");
+		editGroupButton = new JButton("Edit");
 		editGroupButton.setBounds(288, 57, 89, 23);
 		contentPane.add(editGroupButton);
 		
@@ -100,7 +115,7 @@ public class AdvancedGroupChatApp extends JFrame {
 		lblFriendList.setBounds(10, 110, 78, 14);
 		contentPane.add(lblFriendList);
 		
-		JTextArea friendListTextArea = new JTextArea();
+		friendListTextArea = new JTextArea();
 		friendListTextArea.setBounds(10, 130, 65, 151);
 		contentPane.add(friendListTextArea);
 		
@@ -108,7 +123,7 @@ public class AdvancedGroupChatApp extends JFrame {
 		lblGroupList.setBounds(102, 110, 70, 14);
 		contentPane.add(lblGroupList);
 		
-		JTextArea groupListTextArea = new JTextArea();
+		groupListTextArea = new JTextArea();
 		groupListTextArea.setBounds(97, 130, 65, 151);
 		contentPane.add(groupListTextArea);
 		
@@ -117,7 +132,7 @@ public class AdvancedGroupChatApp extends JFrame {
 		contentPane.add(displayCurrentGrouptextField);
 		displayCurrentGrouptextField.setColumns(10);
 		
-		JButton joinCurrentGroupButton = new JButton("Join");
+		joinCurrentGroupButton = new JButton("Join");
 		joinCurrentGroupButton.setBounds(288, 106, 89, 23);
 		contentPane.add(joinCurrentGroupButton);
 		
@@ -130,7 +145,7 @@ public class AdvancedGroupChatApp extends JFrame {
 		contentPane.add(messageListtextArea);
 		
 		JLabel lblMessage = new JLabel("Message");
-		lblMessage.setBounds(10, 292, 46, 14);
+		lblMessage.setBounds(10, 292, 65, 14);
 		contentPane.add(lblMessage);
 		
 		postMessagetextField = new JTextField();
@@ -139,6 +154,15 @@ public class AdvancedGroupChatApp extends JFrame {
 		postMessagetextField.setColumns(10);
 		
 		sendMessageButton = new JButton("Send");
+		sendMessageButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					
+				}catch(Exception ex){
+					ex.printStackTrace();
+				}
+			}
+		});
 		sendMessageButton.setBounds(362, 288, 89, 23);
 		contentPane.add(sendMessageButton);
 		
