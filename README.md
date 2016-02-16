@@ -1,7 +1,7 @@
 # 2107_project
 1)User Registration - nic see
 
-2)Adding a friend - nic see
+2)Adding a friend - Cheryl
 
 3)Creating group - hf
 
@@ -11,7 +11,7 @@
 
 6)Software Stability
 
-7)Software Usability and HCI - cheryl
+7)Software Usability and HCI
 
 8)Report - all
 8.1)Organization and structure
