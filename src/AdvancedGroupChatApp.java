@@ -3,8 +3,11 @@ import java.awt.EventQueue;
 import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
@@ -14,6 +17,8 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTextField;
@@ -60,6 +65,9 @@ public class AdvancedGroupChatApp extends JFrame {
 	
 	DefaultListModel<String> modelGroup;
 	DefaultListModel<String> modelFriend;
+	
+	DatagramSocket myUnicastDS; 
+	DatagramPacket myUnicastDP;
 
 	/**
 	 * Launch the application.
@@ -239,6 +247,17 @@ public class AdvancedGroupChatApp extends JFrame {
 		friendList = new JList<String>(modelFriend);
 		friendList.setBounds(10, 130, 104, 151);
 		contentPane.add(friendList);
+		friendList.addMouseListener(new MouseAdapter() {
+		    public void mouseClicked(MouseEvent evt) {
+		        JList list = (JList)evt.getSource();
+		        if (evt.getClickCount() == 2) {
+
+		            // Double-click detected
+		            int index = list.locationToIndex(evt.getPoint());
+		            postMessagetextField.setText("/m "+friendList.getSelectedValue().toString()+" ");
+		        } 
+		    }
+		});
 		
 		JLabel lblGroupList = new JLabel("Group List");
 		lblGroupList.setBounds(129, 110, 70, 14);
@@ -264,6 +283,7 @@ public class AdvancedGroupChatApp extends JFrame {
 		sendMessageButton = new JButton("Send");
 		sendMessageButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				sendMessage(postMessagetextField.getText());
 			}
 		});
 		sendMessageButton.setBounds(479, 288, 57, 23);
@@ -291,7 +311,100 @@ public class AdvancedGroupChatApp extends JFrame {
 		
 	}
 	
+	public void establishUnicastCommunication()
+	{
+		System.out.println("Establishing Unicast Connection");
+		try{  
+				myUnicastDS=new DatagramSocket(myPort);  
+		}catch(Exception e){  
+			System.out.println(e);  
+		}  
+		new UnicastSystem();  
 	
+	}
+	class UnicastSystem extends Thread{
+		 UnicastSystem(){  
+	   start();  
+	  }  
+	  public void run(){  
+	   while(true){  
+	    try{  
+	    	byte b[]=new byte[100];  
+			myUnicastDP=new DatagramPacket(b,b.length);  
+			myUnicastDS.receive(myUnicastDP);  
+			System.out.println("received a msg ");
+			String senderID = getUserID(myUnicastDP.getPort());
+			appendTextBox(senderID+" Whispers : "+new String(myUnicastDP.getData(),0,myUnicastDP.getLength()));  
+	    }catch(Exception e){  
+	       
+	    }  
+	   }  
+	     
+	  }  
+	 }
+	public void sendMessage(String msg){
+		String[] parts = msg.split(" ");//splitting by "/"
+		if(parts[0].equals("/m"))
+		{
+			String receiverUsername = parts[1];
+			
+			if (verifyIfUserExistInMyFriendList(receiverUsername))
+			{
+				int receiverPort = getUserPort(receiverUsername);
+				String newMsg = msg.replaceAll(parts[0] +" " + parts[1]+ " ", "");//removing command and username to get actual msg
+				sendPrivateMsg(receiverUsername , receiverPort, newMsg);
+			}
+			else
+			{
+				appendTextBox("No Such User :"+ receiverUsername);
+			}
+		}
+		else
+		{
+			sendMsgToCurrentGroup(msg);
+		}
+		clearSendMsgTextField();
+	}
+	public void sendPrivateMsg(String username, int port,String msg)
+	{
+		byte b[]=msg.getBytes();  
+		try {
+			myUnicastDP=new DatagramPacket(b,b.length,InetAddress.getLocalHost(),port);
+			myUnicastDS.send(myUnicastDP);
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	public void sendMsgToCurrentGroup(String msg){//ATTN Leonard
+		System.out.println("sending to group :"+msg);
+	}
+	
+	public void appendTextBox(String msg){
+		messageListtextArea.append(msg+"\n");
+	}
+	public void clearSendMsgTextField()
+	{
+		postMessagetextField.setText("");
+	}
+	
+	
+	
+	public boolean verifyIfUserExistInMyFriendList(String username)
+	{
+		return true;//ATTN Nic 
+	}
+	public int getUserPort(String username)
+	{
+		return 5000;//ATTN Nic
+	}
+	public String getUserID(int port)
+	{
+		return "potato";//ATTN Nic
+	}
 }
 
 class Group {
