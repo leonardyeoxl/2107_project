@@ -289,7 +289,9 @@ public class AdvancedGroupChatApp extends JFrame {
 				}
 				
 				break;
-			case "SMF?":
+				
+			case "SMF?": //membership of group
+				
 				//"SMF?/"+friendName+"/"+groupIP+"/"+groupName+"/"+user.getName();
 				String SMF_GrpName = parts[3];
 				String SMF_GrpIP = parts[2];
@@ -370,7 +372,7 @@ public class AdvancedGroupChatApp extends JFrame {
 				String groupName = parts[1];
 				String groupIPAddress = parts[2];
 				
-				if(!user.getName().equals(userName)){
+				//if(!user.getName().equals(userName)){
 				
 					boolean duplicateGroupNameOrIPCondition_Host = false;
 					String message;
@@ -393,7 +395,7 @@ public class AdvancedGroupChatApp extends JFrame {
 					
 					performSendToMain(message);
 					
-				}
+				//}
 				
 				
 				break;
@@ -405,12 +407,15 @@ public class AdvancedGroupChatApp extends JFrame {
 				String gName = parts[3];
 				String gIPAddress = parts[4];
 				
+				System.out.println("user.getName(): "+user.getName()+" uName: "+uName+" returnedStatus: "+returnedStatus);
 				
 				if(user.getName().equals(uName)){ //current app user is equal to 
 					
 					if(returnedStatus.equals("NotExisted")){
 						
 						boolean check = checkDuplicateGroupNameOrIP_Host(gName, gIPAddress); //check host arraylist of groups for duplicate
+						
+						//System.out.println("user.getName(): "+user.getName()+" uName: "+uName+" check: "+check);
 						
 						if(check == false){
 							
@@ -432,7 +437,7 @@ public class AdvancedGroupChatApp extends JFrame {
 							//dialog box will pop up
 							//select multiple friends
 							//click add
-							doAddMultipleFriendsIntoGroup(newGroup);
+							doAddMultipleFriendsIntoGroup(newGroup); //membership of group
 							
 						}
 						
@@ -470,8 +475,10 @@ public class AdvancedGroupChatApp extends JFrame {
 		}
 	}
 	
+	//membership of group
 	public void doAddMultipleFriendsIntoGroup(Group newGroup){
 	
+	//membership of group
 	public void doSendToMultipleFriends(Group newGroup, ArrayList<String> listOfSelectedFriends){
 	
 	public void createAGroup_AndAddtoGroupList(String groupName, String groupIP){
