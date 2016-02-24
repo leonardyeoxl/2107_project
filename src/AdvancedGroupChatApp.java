@@ -130,7 +130,7 @@ public class AdvancedGroupChatApp extends JFrame {
 							int length = dgpReceived.getLength();
 							
 							String msg = new String(receivedData,0,length);
-							debugMsg(msg);
+							//debugMsg(msg);
 							
 							mainValidateAction(msg);
 							
@@ -287,52 +287,52 @@ public class AdvancedGroupChatApp extends JFrame {
 					}else{
 						
 						try {
-					
-						
-						
-						if(friendName.contains(user.getName())){
 							
-							System.out.println("friendName: "+friendName);
-						
-							multicastGroup_Group = InetAddress.getByName(grpIP);
-							multicastSocket_Group = new MulticastSocket(wellKnownPort);
-							multicastSocket_Group.joinGroup(multicastGroup_Group);
-							nameOfChatText.setText(grpName);
+							if(friendName.contains(user.getName())){
+								
+								System.out.println("friendName: "+friendName);
 							
-							user.setCurrentGroupIP(grpIP);
-							user.setCurrentGroupName(grpName);
+								multicastGroup_Group = InetAddress.getByName(grpIP);
+								multicastSocket_Group = new MulticastSocket(wellKnownPort);
+								multicastSocket_Group.joinGroup(multicastGroup_Group);
+								nameOfChatText.setText(grpName);
+								
+								user.setCurrentGroupIP(grpIP);
+								user.setCurrentGroupName(grpName);
+								
+								createAGroup_AndAddtoGroupList(grpName, grpIP);
+								createAFriend_AndAddtoFriendList(senderName, grpName, grpIP);
+								
+								int answer = JOptionPane.showConfirmDialog(null, user.getName()+"Do u want to listen to our convo or not?",
+							            "Confirm Dialog", JOptionPane.YES_NO_OPTION);
+								
+								switch (answer){
+									case JOptionPane.YES_OPTION:
+										checkAcceptOfReject = true;
+										break;
+									case JOptionPane.NO_OPTION:
+										checkAcceptOfReject = false;
+										break;
+								}
+								
+								
+								isInGroupChat = true;
+								
+								tglbtnDisconnectconnect.setSelected(isEnabled());
+								
+								
+								
+								/*if(checkAcceptOfReject == true){
+									messageListtextArea.append(msg+"\n");
+								}*/
 							
-							createAGroup_AndAddtoGroupList(grpName, grpIP);
-							createAFriend_AndAddtoFriendList(senderName, grpName, grpIP);
-							
-							int answer = JOptionPane.showConfirmDialog(null, user.getName()+"Do u want to listen to our convo or not?",
-						            "Confirm Dialog", JOptionPane.YES_NO_OPTION);
-							
-							switch (answer){
-								case JOptionPane.YES_OPTION:
-									checkAcceptOfReject = true;
-									break;
-								case JOptionPane.NO_OPTION:
-									checkAcceptOfReject = false;
-									break;
 							}
 							
-							
-							isInGroupChat = true;
-							
-							tglbtnDisconnectconnect.setSelected(isEnabled());
-							
 							recievingMessages_Thread();
-							
-							/*if(checkAcceptOfReject == true){
-								messageListtextArea.append(msg+"\n");
-							}*/
 						
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
-						
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 				}
 				
 				break;
@@ -381,13 +381,27 @@ public class AdvancedGroupChatApp extends JFrame {
 						
 						tglbtnDisconnectconnect.setSelected(isEnabled());
 						
-						recievingMessages_Thread();
+						String message = user.getName()+" joined GROUP " + SMF_GrpName + "\n";
+						
+						try {
+							// Send a join message
+							byte[] buf = message.getBytes();
+							DatagramPacket dgpConnected = new DatagramPacket(buf, buf.length, multicastGroup_Group, wellKnownPort);
+							multicastSocket_Group.send(dgpConnected);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
+						
 						
 						/*if(checkAcceptOfReject == true){
 							messageListtextArea.append(msg+"\n");
 						}*/
 					
 					}
+					
+					recievingMessages_Thread();
 					
 				} catch (Exception e) {
 					e.printStackTrace();
