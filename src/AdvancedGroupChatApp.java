@@ -201,14 +201,22 @@ public class AdvancedGroupChatApp extends JFrame {
 				break;
 			case "GC!":
 				
+				String GC_GroupIP = parts[2];
+				String GC_GroupName = parts[1];
+				
 				try {
 					
-						multicastGroup_Group = InetAddress.getByName(parts[2]);
+						multicastGroup_Group = InetAddress.getByName(GC_GroupIP);
 						multicastSocket_Group = new MulticastSocket(wellKnownPort);
 						multicastSocket_Group.joinGroup(multicastGroup_Group);
-						nameOfChatText.setText(parts[1]);
+						nameOfChatText.setText(GC_GroupName);
 						
 						isInGroupChat = true;
+						
+						tglbtnDisconnectconnect.setSelected(isEnabled());
+						
+						user.setCurrentGroupIP(GC_GroupIP);
+						user.setCurrentGroupName(GC_GroupName);
 					
 					
 				} catch (Exception e) {
@@ -433,11 +441,15 @@ public class AdvancedGroupChatApp extends JFrame {
 								
 							}
 							
+							inviteButton.setEnabled(true);
+							
 							
 							//dialog box will pop up
 							//select multiple friends
 							//click add
 							doAddMultipleFriendsIntoGroup(newGroup); //membership of group
+							
+							hostUserJoinGroupAfterCreateGroup(gName,gIPAddress);
 							
 						}
 						
@@ -453,7 +465,7 @@ public class AdvancedGroupChatApp extends JFrame {
 				
 				break;
 			case "SC?": 
-				//"SC!"+"/"+multicastGroup_Group.getHostAddress()+"/"+ msg;
+				//"SC?"+"/"+multicastGroup_Group.getHostAddress()+"/"+ msg;
 				String IpAddr= parts[1];
 				String userMessage= parts[2];
 				
@@ -472,6 +484,23 @@ public class AdvancedGroupChatApp extends JFrame {
 				recievingMessages_Thread();
 				
 				break;
+		}
+	}
+	
+	public void hostUserJoinGroupAfterCreateGroup(String gName, String gIPAddress){
+		String receivedMsg = "GC!/"+gName+"/"+gIPAddress;
+		mainValidateAction(receivedMsg);
+		
+		String message = user.getName()+" joined GROUP " + gName + "\n";
+		
+		try {
+			// Send a join message
+			byte[] buf = message.getBytes();
+			DatagramPacket dgpConnected = new DatagramPacket(buf, buf.length, multicastGroup_Group, wellKnownPort);
+			multicastSocket_Group.send(dgpConnected);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -870,6 +899,8 @@ public class AdvancedGroupChatApp extends JFrame {
 								String groupName = groupList.getSelectedValue();
 								// Send joined message
 								
+								sendMessageButton.setEnabled(true);
+								
 								if(groupName != null){
 								
 									System.out.println("groupName: "+groupName);
@@ -926,8 +957,9 @@ public class AdvancedGroupChatApp extends JFrame {
 			    			  
 			    			  	tglbtnDisconnectconnect.setSelected(false);
 			    			  	isInGroupChat = false;
+			    			  	sendMessageButton.setEnabled(false);
 			    			  
-								String  msg = user+": is leaving group"+"\n";
+								String  msg = user.getName()+": is leaving group "+user.getCurrentGroupName()+"\n";
 								byte[] buf = msg.getBytes();
 								DatagramPacket dgpSend = 
 										new DatagramPacket(buf, buf.length, multicastGroup_Group, wellKnownPort);
