@@ -1,38 +1,4 @@
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import java.awt.TextArea;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
-import javax.swing.text.DefaultCaret;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.AbstractButton;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JTextArea;
-import javax.swing.JToggleButton;
-import javax.swing.ScrollPaneConstants;
 
 public class AdvancedGroupChatApp extends JFrame {
 
@@ -72,6 +38,7 @@ public class AdvancedGroupChatApp extends JFrame {
 	JList<String> friendList, groupList;
 	
 	DefaultListModel<String> modelGroup;
+	DefaultListModel<String> modelMultipleFriends;
 	DefaultListModel<String> modelFriend;
 	
 	boolean checkAcceptOfReject = true;
@@ -322,8 +289,64 @@ public class AdvancedGroupChatApp extends JFrame {
 				}
 				
 				break;
-			case "FIG!":
+			case "SMF?":
+				//"SMF?/"+friendName+"/"+groupIP+"/"+groupName+"/"+user.getName();
+				String SMF_GrpName = parts[3];
+				String SMF_GrpIP = parts[2];
+				String SMF_FriendName = parts[1];
+				String SMF_SenderName = parts[4];
 				
+				try {
+					
+					
+					
+					if(SMF_FriendName.contains(user.getName())){
+						
+						System.out.println("friendName: "+SMF_FriendName);
+					
+						multicastGroup_Group = InetAddress.getByName(SMF_GrpIP);
+						multicastSocket_Group = new MulticastSocket(wellKnownPort);
+						multicastSocket_Group.joinGroup(multicastGroup_Group);
+						nameOfChatText.setText(SMF_GrpName);
+						
+						user.setCurrentGroupIP(SMF_GrpIP);
+						user.setCurrentGroupName(SMF_GrpName);
+						
+						createAGroup_AndAddtoGroupList(SMF_GrpName, SMF_GrpIP);
+						//createAFriend_AndAddtoFriendList(SMF_SenderName, SMF_GrpName, SMF_GrpIP);
+						
+						int answer = JOptionPane.showConfirmDialog(null, user.getName()+"Do u want to listen to our convo or not?",
+					            "Confirm Dialog", JOptionPane.YES_NO_OPTION);
+						
+						switch (answer){
+							case JOptionPane.YES_OPTION:
+								checkAcceptOfReject = true;
+								break;
+							case JOptionPane.NO_OPTION:
+								checkAcceptOfReject = false;
+								break;
+						}
+						
+						
+						isInGroupChat = true;
+						
+						tglbtnDisconnectconnect.setSelected(isEnabled());
+						
+						recievingMessages_Thread();
+						
+						/*if(checkAcceptOfReject == true){
+							messageListtextArea.append(msg+"\n");
+						}*/
+					
+					}
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+				
+				break;
+			case "FIG!":
 				//"FIG!"+"/"+friendName+"/"+grpIP+"/"+grpName+"/"+senderName;
 				
 				String frdName = parts[1];
@@ -405,6 +428,12 @@ public class AdvancedGroupChatApp extends JFrame {
 								
 							}
 							
+							
+							//dialog box will pop up
+							//select multiple friends
+							//click add
+							doAddMultipleFriendsIntoGroup(newGroup);
+							
 						}
 						
 					}else{
@@ -441,6 +470,10 @@ public class AdvancedGroupChatApp extends JFrame {
 		}
 	}
 	
+	public void doAddMultipleFriendsIntoGroup(Group newGroup){
+	
+	public void doSendToMultipleFriends(Group newGroup, ArrayList<String> listOfSelectedFriends){
+	
 	public void createAGroup_AndAddtoGroupList(String groupName, String groupIP){
 	
 	public void createAFriend_AndAddtoFriendList(String friendName, String groupName, String groupIP){
@@ -448,8 +481,40 @@ public class AdvancedGroupChatApp extends JFrame {
 	public boolean checkIfFriendHasJoinedGroup(String friendName, String groupName, String groupIP){
 	
 	public boolean checkDuplicateGroupNameOrIP_Host(String groupName, String groupIPAddress){
+		
+		//"G?/"+groupName+"/"+groupIpAddress
+		
+		if(!listOfMyGroups.isEmpty()){
+			
+			int count = 0;
+			
+			for(int i=0; i<listOfMyGroups.size(); i++){
+				if(listOfMyGroups.get(i).getName().equals(groupName) || listOfMyGroups.get(i).getIP().equals(groupIPAddress)){
+					count++;
+				}
+			}
+			
+			if(count > 0){ //got duplicate
+				return true;
+			}else{ //no duplicate
+				return false;
+			}
+		
+		}else{
+			return false;
+		}
+	}
 	
 	public String generateRandomGroupIP()
+	{
+		Random randomGenerator = new Random();
+		
+		int first = 235;
+		int second = 1;
+		int third = randomGenerator.nextInt(255);
+		int forth = randomGenerator.nextInt(255);
+		return first+"."+second+"."+third+"."+forth;
+	}
 	
 	public void checkDuplicateUserOrPort(String username,String parts)
 	{
@@ -464,10 +529,59 @@ public class AdvancedGroupChatApp extends JFrame {
 	}
 	
 	public void performSendToMain(String msg)
+	{
+		try{
+			byte[] buf = msg.getBytes();
+			DatagramPacket dgpSend = new DatagramPacket(buf, buf.length, multicastGroupMain, wellKnownPort);
+			multicastSocketMain.send(dgpSend);
+			
+		}catch (IOException ex ){
+			ex.printStackTrace();
+		}
+	}
 
 	public String generateRandomIP()
+	{
+		Random randomGenerator = new Random();
+		
+		int first = 239;
+		int second = randomGenerator.nextInt(255);
+		int third = randomGenerator.nextInt(255);
+		int forth = randomGenerator.nextInt(255);
+		return first+"."+second+"."+third+"."+forth;
+	}
 	
 	public void recievingMessages_Thread(){
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				
+				byte buf1[] = new byte[1000];
+				DatagramPacket dgpReceived = new DatagramPacket(buf1, buf1.length);
+				while (true) {
+					try {
+						multicastSocket_Group.receive(dgpReceived);
+						byte[] receivedData = dgpReceived.getData();
+						int length = dgpReceived.getLength();
+						// Assumed we received string
+						String msg = new String(receivedData, 0, length);
+						//debugMsg(msg);
+						//mainValidateAction(msg);
+						//messageListtextArea.append("thread: "+msg);
+						
+						if(checkAcceptOfReject == true){
+							messageListtextArea.append(msg);
+						}
+						
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		}).start();
+		
+	}
 	
 	/**
 	 * Create the frame.
@@ -476,6 +590,7 @@ public class AdvancedGroupChatApp extends JFrame {
 		
 		modelGroup = new DefaultListModel<>();
 		modelFriend = new DefaultListModel<>();
+		modelMultipleFriends = new DefaultListModel<>();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 562, 391);
@@ -1024,9 +1139,17 @@ public class AdvancedGroupChatApp extends JFrame {
 		User user2 = new User("user2","2002");
 		User user3 = new User("user3","2003");
 		
+		User user4 = new User("user4","2001");
+		User user5 = new User("user5","2002");
+		User user6 = new User("user6","2003");
+		
 		listOfMyFriends.add(user1);
 		listOfMyFriends.add(user2);
 		listOfMyFriends.add(user3);
+		
+		listOfMyFriends.add(user4);
+		listOfMyFriends.add(user5);
+		listOfMyFriends.add(user6);
 		
 		for(int i=0; i<listOfMyFriends.size(); i++){
 			
