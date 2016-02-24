@@ -1,4 +1,39 @@
 import java.awt.BorderLayout;
+import java.awt.EventQueue;
+import java.awt.TextArea;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.DefaultCaret;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.AbstractButton;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
 
 public class AdvancedGroupChatApp extends JFrame {
 
@@ -111,6 +146,10 @@ public class AdvancedGroupChatApp extends JFrame {
 		}
 	}
 	public void debugMsg(String msg)//Purpose is to help you view msg easier by appending it to the chat group/s msg
+	{
+		//System.out.println("msg");
+		messageListtextArea.append("Console Msg "+msg+"\n");
+	}
 
 	public void mainValidateAction(String msg)
 	{
@@ -465,7 +504,7 @@ public class AdvancedGroupChatApp extends JFrame {
 				
 				break;
 			case "SC?": 
-				//"SC?"+"/"+multicastGroup_Group.getHostAddress()+"/"+ msg;
+				//"SC!"+"/"+multicastGroup_Group.getHostAddress()+"/"+ msg;
 				String IpAddr= parts[1];
 				String userMessage= parts[2];
 				
@@ -506,15 +545,111 @@ public class AdvancedGroupChatApp extends JFrame {
 	
 	//membership of group
 	public void doAddMultipleFriendsIntoGroup(Group newGroup){
+		
+		//modelMultipleFriends.removeAllElements();
+		
+		for(int i=0; i<listOfMyFriends.size(); i++){
+			modelMultipleFriends.addElement(listOfMyFriends.get(i).getName());
+		}
+		
+		JList list = new JList(modelMultipleFriends);
+		list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		
+		JOptionPane.showMessageDialog(
+		  null, list, "Select friends to chat in "+newGroup.getName(), JOptionPane.PLAIN_MESSAGE);
+		System.out.println(Arrays.toString(list.getSelectedIndices()));
+		
+		int[] selectedFriendsArray = list.getSelectedIndices();
+		
+		ArrayList<String> listOfSelectedFriends = new ArrayList<String>();
+		
+		for(int i=0; i<selectedFriendsArray.length; i++){
+			listOfSelectedFriends.add(modelMultipleFriends.getElementAt(i));
+		}
+		
+		System.out.println(Arrays.toString(listOfSelectedFriends.toArray()));
+		
+		doSendToMultipleFriends(newGroup, listOfSelectedFriends);
+		
+	}
 	
 	//membership of group
 	public void doSendToMultipleFriends(Group newGroup, ArrayList<String> listOfSelectedFriends){
+		
+		try {
+			
+			String groupName = newGroup.getName();
+			String groupIP = newGroup.getIP();
+			
+			for(int i=0; i<listOfSelectedFriends.size(); i++){
+				
+				String friendName = listOfSelectedFriends.get(i);
+				
+				String msg = "SMF?/"+friendName+"/"+groupIP+"/"+groupName+"/"+user.getName();
+				performSendToMain(msg);
+				
+			}
+			
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+	}
 	
 	public void createAGroup_AndAddtoGroupList(String groupName, String groupIP){
+		
+		Group newGroup = new Group(groupName,groupIP);
+		
+		listOfMyGroups.add(newGroup);
+		
+		modelGroup.removeAllElements();
+		
+		for(int i=0; i<listOfMyGroups.size(); i++){
+			
+			String someString  = listOfMyGroups.get(i).getName();
+			
+			modelGroup.addElement(someString);
+			
+		}
+		
+	}
 	
 	public void createAFriend_AndAddtoFriendList(String friendName, String groupName, String groupIP){
+		
+		User newUser = new User();
+		newUser.setName(friendName);
+		newUser.setCurrentGroupName(groupName);
+		newUser.setCurrentGroupIP(groupIP);
+		
+		listOfMyFriends.add(newUser);
+		
+		modelFriend.removeAllElements();
+		
+		for(int i=0; i<listOfMyFriends.size(); i++){
+			
+			String someString  = listOfMyFriends.get(i).getName();
+			
+			modelFriend.addElement(someString);
+			
+		}
+		
+	}
 	
 	public boolean checkIfFriendHasJoinedGroup(String friendName, String groupName, String groupIP){
+		
+		System.out.println("friendName, groupName, groupIP: "+friendName+" "+groupName+" "+groupIP);
+		System.out.println("user.getName(), user.getCurrentGroupName(), user.getCurrentGroupIP(): "+user.getName()+" "+user.getCurrentGroupName()+" "+user.getCurrentGroupIP());
+		
+		if(user.getName().equals(friendName) && user.getCurrentGroupName().equals("") && user.getCurrentGroupIP().equals("")){
+			return false;
+		}else if(user.getName().equals(friendName) && user.getCurrentGroupName().equals(groupName) && user.getCurrentGroupIP().equals(groupIP)){
+			return true;
+		}
+		
+		return false;
+		
+	}
 	
 	public boolean checkDuplicateGroupNameOrIP_Host(String groupName, String groupIPAddress){
 		
@@ -1039,8 +1174,39 @@ public class AdvancedGroupChatApp extends JFrame {
 	}
 	
 	public void establishUnicastCommunication()
+	{
+ 		System.out.println("Establishing Unicast Connection");
+ 		try{  
+ 				myUnicastDS=new DatagramSocket(myPort);  
+ 		}catch(Exception e){  
+ 			System.out.println(e);  
+ 		}  
+ 		new UnicastSystem();  
+  	
+ 	}
 	
 	class UnicastSystem extends Thread{
+		 UnicastSystem(){  
+	   start();  
+	  }  
+	  public void run(){  
+	   while(true){  
+	    try{  
+	    	
+	    	byte b[]=new byte[100];  
+			myUnicastDP=new DatagramPacket(b,b.length);  
+			myUnicastDS.receive(myUnicastDP);  
+			
+			String senderID = getUserID(myUnicastDP.getPort());
+			appendTextBox(senderID+" Whispers "+myUnicastDP.getPort()+" : "+new String(myUnicastDP.getData(),0,myUnicastDP.getLength()));  
+			
+	    }catch(Exception e){  
+	       
+	    }  
+	   }  
+	     
+	  }  
+	 }
 	
 	public void sendMessage(String msg){
  		System.out.println("msg is : "+msg);
@@ -1174,13 +1340,13 @@ public class AdvancedGroupChatApp extends JFrame {
 	
 	public void Testing_addFriend(){
 		
-		User user1 = new User("user1","2001");
-		User user2 = new User("user2","2002");
-		User user3 = new User("user3","2003");
+		User user1 = new User("Jim","2001");
+		User user2 = new User("Jane","2002");
+		User user3 = new User("Mike","2003");
 		
-		User user4 = new User("user4","2001");
-		User user5 = new User("user5","2002");
-		User user6 = new User("user6","2003");
+		User user4 = new User("Charlie","2001");
+		User user5 = new User("Matt","2002");
+		User user6 = new User("Tom","2003");
 		
 		listOfMyFriends.add(user1);
 		listOfMyFriends.add(user2);
