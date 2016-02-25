@@ -29,6 +29,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
@@ -965,6 +966,7 @@ public class AdvancedGroupChatApp extends JFrame {
 		contentPane.add(registerFriendButton);
 
 		addFriendButton = new JButton("Add Friend");
+		addFriendButton.setIcon(new ImageIcon(AdvancedGroupChatApp.class.getResource("/images/add-friend.png")));
 		addFriendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String msg = friendtextField.getText().trim();
@@ -991,10 +993,11 @@ public class AdvancedGroupChatApp extends JFrame {
 				
 			}
 		});
-		addFriendButton.setBounds(189, 32, 89, 23);
+		addFriendButton.setBounds(189, 32, 120, 23);
 		contentPane.add(addFriendButton);
 
 		createGroupButton = new JButton("Create");
+		createGroupButton.setIcon(new ImageIcon(AdvancedGroupChatApp.class.getResource("/images/group-of-people.png")));
 		createGroupButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String groupName = grouptextField.getText().trim();
@@ -1010,10 +1013,11 @@ public class AdvancedGroupChatApp extends JFrame {
 				}
 			}
 		});
-		createGroupButton.setBounds(189, 57, 89, 23);
+		createGroupButton.setBounds(189, 57, 120, 23);
 		contentPane.add(createGroupButton);
 
 		deleteFriendButton = new JButton("Delete");
+		deleteFriendButton.setIcon(new ImageIcon(AdvancedGroupChatApp.class.getResource("/images/delete-user.png")));
 		deleteFriendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (friendList.getSelectedValue() == null) {
@@ -1098,6 +1102,7 @@ public class AdvancedGroupChatApp extends JFrame {
 		postMessagetextField.setColumns(10);
 
 		sendMessageButton = new JButton("Send");
+		sendMessageButton.setIcon(new ImageIcon(AdvancedGroupChatApp.class.getResource("/images/send-button.png")));
 		sendMessageButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String msg = postMessagetextField.getText();
@@ -1105,7 +1110,7 @@ public class AdvancedGroupChatApp extends JFrame {
 				sendMessage(postMessagetextField.getText());
 			}
 		});
-		sendMessageButton.setBounds(479, 288, 57, 23);
+		sendMessageButton.setBounds(439, 288, 95, 23);
 		contentPane.add(sendMessageButton);
 
 		tglbtnStatus = new JToggleButton("Status: online/offline");
@@ -1115,7 +1120,8 @@ public class AdvancedGroupChatApp extends JFrame {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
-					tglbtnStatus.setText("Status: Offline");
+					tglbtnStatus.setText("Offline");
+					tglbtnStatus.setIcon(new ImageIcon(AdvancedGroupChatApp.class.getResource("/images/offline.png")));
 					sendMessageButton.setEnabled(false);
 					addFriendButton.setEnabled(false);
 					inviteButton.setEnabled(false);
@@ -1128,7 +1134,8 @@ public class AdvancedGroupChatApp extends JFrame {
 					msg = msg + "/" + "Offline" + "/" + user.getName() + "/" + user.getPort();
 					performSendToMain(msg);
 				} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-					tglbtnStatus.setText("Status: Online");
+					tglbtnStatus.setText("Online");
+					tglbtnStatus.setIcon(new ImageIcon(AdvancedGroupChatApp.class.getResource("/images/online.png")));
 					sendMessageButton.setEnabled(true);
 					addFriendButton.setEnabled(true);
 					inviteButton.setEnabled(true);
@@ -1146,7 +1153,8 @@ public class AdvancedGroupChatApp extends JFrame {
 
 		});
 
-		inviteButton = new JButton("invite to ");
+		inviteButton = new JButton("Invite");
+		inviteButton.setIcon(new ImageIcon(AdvancedGroupChatApp.class.getResource("/images/add-user.png")));
 		inviteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -1222,7 +1230,7 @@ public class AdvancedGroupChatApp extends JFrame {
 				
 			}
 		});
-		inviteButton.setBounds(10, 319, 104, 23);
+		inviteButton.setBounds(10, 315, 104, 23);
 		contentPane.add(inviteButton);
 
 		JLabel currentChatText = new JLabel("Current Chat:");
@@ -1240,6 +1248,7 @@ tglbtnDisconnectconnect = new JToggleButton("Disconnect/Connect");
 			      if(ev.getStateChange()==ItemEvent.SELECTED){ //when "disconnect/connect" button is depressed
 			    	  
 			    	  tglbtnDisconnectconnect.setText("Connect");
+			    	  tglbtnDisconnectconnect.setIcon(new ImageIcon(AdvancedGroupChatApp.class.getResource("/images/connected.png")));
 			    	  
 			    	  checkAcceptOrReject = true; //user wants to hear convo in the group
 			    	  
@@ -1298,6 +1307,7 @@ tglbtnDisconnectconnect = new JToggleButton("Disconnect/Connect");
 			      } else if(ev.getStateChange()==ItemEvent.DESELECTED){ //when "disconnect/connect" button is lifted
 			    	  
 			    	  tglbtnDisconnectconnect.setText("Disconnect");
+			    	  tglbtnDisconnectconnect.setIcon(new ImageIcon(AdvancedGroupChatApp.class.getResource("/images/disconnected.png")));
 			    	  
 			    		  try {
 			    			  
