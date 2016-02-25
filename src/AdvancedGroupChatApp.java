@@ -136,7 +136,7 @@ public class AdvancedGroupChatApp extends JFrame {
 							int length = dgpReceived.getLength();
 
 							String msg = new String(receivedData, 0, length);
-							debugMsg(msg);
+							//debugMsg(msg);
 
 							
 							mainValidateAction(msg);
@@ -208,8 +208,8 @@ public class AdvancedGroupChatApp extends JFrame {
 			// A/ stands for add friend command "A?/friendName/myName/myPort"
 			if (parts[1].equals(user.getName())) {
 				String replyRequest;
-				int answer = JOptionPane.showConfirmDialog(null, "Ask for confirmation (returns an int)",
-						"Confirm Dialog", JOptionPane.YES_NO_OPTION);
+				int answer = JOptionPane.showConfirmDialog(null, "Accept "+parts[2]+" as friend?",
+						"Friend request", JOptionPane.YES_NO_OPTION);
 				if (answer == 0) {
 					replyRequest = "Accepted";
 					User tempUser = new User();
