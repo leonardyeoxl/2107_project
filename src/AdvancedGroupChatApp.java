@@ -208,8 +208,13 @@ public class AdvancedGroupChatApp extends JFrame {
 			// A/ stands for add friend command "A?/friendName/myName/myPort"
 			if (parts[1].equals(user.getName())) {
 				String replyRequest;
+<<<<<<< HEAD
 				int answer = JOptionPane.showConfirmDialog(null, "Do you want to want accept friend invitation from "+parts[2],
 						"Hi "+user.getName(), JOptionPane.YES_NO_OPTION);
+=======
+				int answer = JOptionPane.showConfirmDialog(null, "Accept "+parts[2]+" as friend?",
+						"Friend request", JOptionPane.YES_NO_OPTION);
+>>>>>>> origin/master
 				if (answer == 0) {
 					replyRequest = "Accepted";
 					User tempUser = new User();
