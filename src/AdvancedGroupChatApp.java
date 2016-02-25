@@ -136,7 +136,7 @@ public class AdvancedGroupChatApp extends JFrame {
 							int length = dgpReceived.getLength();
 
 							String msg = new String(receivedData, 0, length);
-							debugMsg(msg);
+							//debugMsg(msg);
 
 							
 							mainValidateAction(msg);
@@ -208,8 +208,8 @@ public class AdvancedGroupChatApp extends JFrame {
 			// A/ stands for add friend command "A?/friendName/myName/myPort"
 			if (parts[1].equals(user.getName())) {
 				String replyRequest;
-				int answer = JOptionPane.showConfirmDialog(null, "Ask for confirmation (returns an int)",
-						"Confirm Dialog", JOptionPane.YES_NO_OPTION);
+				int answer = JOptionPane.showConfirmDialog(null, "Do you want to want accept friend invitation from "+parts[2],
+						"Hi "+user.getName(), JOptionPane.YES_NO_OPTION);
 				if (answer == 0) {
 					replyRequest = "Accepted";
 					User tempUser = new User();
@@ -244,7 +244,7 @@ public class AdvancedGroupChatApp extends JFrame {
 					configureAllButton(true);
 					break;
 				case "Rejected":
-					JOptionPane.showMessageDialog(null, "Friend Request Was Rejected!", "Message Dialog",
+					JOptionPane.showMessageDialog(null, "Your friend Request Was Rejected!", "Hi "+user.getName(),
 							JOptionPane.PLAIN_MESSAGE);
 					configureAllButton(true);
 					break;
@@ -582,7 +582,7 @@ public class AdvancedGroupChatApp extends JFrame {
 	}
 	
 	public void confirmationToListenToGroupChat(){
-		int answer = JOptionPane.showConfirmDialog(null, user.getName()+", do you want to listen to our convo?",
+		int answer = JOptionPane.showConfirmDialog(null, user.getName()+", do you want to listen to our chat?",
 	            "Confirm Dialog", JOptionPane.YES_NO_OPTION);
 		
 		switch (answer){
@@ -1006,7 +1006,7 @@ public class AdvancedGroupChatApp extends JFrame {
 					performSendToMain(msg);
 				}else{
 					JOptionPane.showMessageDialog(null, "Please enter your group name",
-				            "Message Dialog", JOptionPane.PLAIN_MESSAGE);
+				            "Hi "+user.getName(), JOptionPane.PLAIN_MESSAGE);
 				}
 			}
 		});
@@ -1115,6 +1115,7 @@ public class AdvancedGroupChatApp extends JFrame {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
+					tglbtnStatus.setText("Status: Offline");
 					sendMessageButton.setEnabled(false);
 					addFriendButton.setEnabled(false);
 					inviteButton.setEnabled(false);
@@ -1127,6 +1128,7 @@ public class AdvancedGroupChatApp extends JFrame {
 					msg = msg + "/" + "Offline" + "/" + user.getName() + "/" + user.getPort();
 					performSendToMain(msg);
 				} else if (e.getStateChange() == ItemEvent.DESELECTED) {
+					tglbtnStatus.setText("Status: Online");
 					sendMessageButton.setEnabled(true);
 					addFriendButton.setEnabled(true);
 					inviteButton.setEnabled(true);
@@ -1237,6 +1239,8 @@ tglbtnDisconnectconnect = new JToggleButton("Disconnect/Connect");
 			   public void itemStateChanged(ItemEvent ev) {
 			      if(ev.getStateChange()==ItemEvent.SELECTED){ //when "disconnect/connect" button is depressed
 			    	  
+			    	  tglbtnDisconnectconnect.setText("Connect");
+			    	  
 			    	  checkAcceptOrReject = true; //user wants to hear convo in the group
 			    	  
 			    	  if(isInGroupChat == false){ //if user is not in any group chat
@@ -1292,6 +1296,8 @@ tglbtnDisconnectconnect = new JToggleButton("Disconnect/Connect");
 			    	  }
 			    	  
 			      } else if(ev.getStateChange()==ItemEvent.DESELECTED){ //when "disconnect/connect" button is lifted
+			    	  
+			    	  tglbtnDisconnectconnect.setText("Disconnect");
 			    	  
 			    		  try {
 			    			  
